@@ -21,13 +21,3 @@ class Country {
         newRecovered = json["NewRecovered"],
         totalRecovered = json["TotalRecovered"];
 }
-//
-//{
-//"Country": "Saudi Arabia",
-//"NewConfirmed": 53,
-//"TotalConfirmed": 171,
-//"NewDeaths": 0,
-//"TotalDeaths": 0,
-//"NewRecovered": 4,
-//"TotalRecovered": 6
-//},

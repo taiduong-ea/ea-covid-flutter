@@ -1,11 +1,10 @@
-import 'package:eacovidflutter/summary_repo.dart';
+import 'package:eacovidflutter/models/country.dart';
+import 'package:eacovidflutter/repos/summary_repo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
-import '../country.dart';
-import '../summary.dart';
+import '../models/summary.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -58,21 +57,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-//
-//  SmartRefresher(
-//  controller: _refreshController,
-//  onRefresh: _onRefresh,
-//  enablePullDown: true,
-//  header: WaterDropHeader(),
-//  child: Column(
-//  children: <Widget>[
-//  _buildLastUpdateHeader(),
-//  _buildListViewHeader(),
-//  _buildListView(),
-//  ],
-//  ),
-//  )
 
   @override
   void initState() {

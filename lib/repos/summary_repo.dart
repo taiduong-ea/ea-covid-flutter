@@ -1,6 +1,5 @@
 import 'dart:convert';
-
-import 'package:eacovidflutter/summary.dart';
+import 'package:eacovidflutter/models/summary.dart';
 import 'package:http/http.dart' as http;
 import 'dart:core';
 
