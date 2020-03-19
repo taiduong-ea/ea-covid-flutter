@@ -77,18 +77,20 @@ class _MyHomePageState extends State<MyHomePage> {
         _buildLastUpdatedHeader(),
         _buildListViewHeader(),
         Expanded(
-          child: SmartRefresher(
-            controller: _refreshController,
-            onRefresh: _onRefresh,
-            onLoading: _onLoading,
-            enablePullDown: true,
-            enablePullUp: true,
-            header: WaterDropHeader(),
-            footer: _buildCustomFooter(),
-            child: _buildListView(),
-          ),
-        )
-      ],
+          child: Scrollbar(
+            child: SmartRefresher(
+              controller: _refreshController,
+              onRefresh: _onRefresh,
+              onLoading: _onLoading,
+              enablePullDown: true,
+              enablePullUp: true,
+              header: WaterDropHeader(),
+              footer: _buildCustomFooter(),
+              child: _buildListView(),
+            ),
+          )
+        ),
+      ]
     );
   }
 
