@@ -23,7 +23,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isSearching = false;
   String searchQuery = "Search query";
   Summary summary = Summary.empty();
-  String lastUpdate = "";
+  String lastPull = "";
   List<Country> countries = [];
   int countryOffSet = 0;
 
@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _updateLastPull();
     listenForCountries();
   }
 
@@ -79,17 +80,33 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildLastUpdatedHeader() {
-    return Container(
-      width: double.infinity,
-      color: Colors.lightBlue,
-      padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
-      child: Text(
-        "Last updated: ${summary.date}",
-        style: TextStyle(
-          color: Colors.white,
+    return Column(
+      children: <Widget>[
+        Container(
+          width: double.infinity,
+          color: Colors.lightBlue,
+          padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+          child: Text(
+            "Last updated: ${summary.date}",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.left,
+          ),
         ),
-        textAlign: TextAlign.left,
-      ),
+        Container(
+          width: double.infinity,
+          color: Colors.lightBlue,
+          padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+          child: Text(
+            "Last pull: $lastPull",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.left,
+          ),
+        ),
+      ],
     );
   }
 
@@ -324,18 +341,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onRefresh() async {
+    _updateLastPull();
     final Summary summary = await getCountries();
     loadCompletion(summary);
     _refreshController.refreshCompleted();
-  }
-
-  void _onLoading() async {
-    await Future.delayed(Duration(milliseconds: 500));
-    var countries = loadMoreCountries();
-    setState(() {
-      this.countries.addAll(countries);
-    });
-    _refreshController.loadComplete();
   }
 
   void loadCompletion(Summary summary) {
@@ -345,6 +354,15 @@ class _MyHomePageState extends State<MyHomePage> {
       countryOffSet = 0;
       this.countries.addAll(loadMoreCountries());
     });
+  }
+
+  void _onLoading() async {
+    await Future.delayed(Duration(milliseconds: 500));
+    var countries = loadMoreCountries();
+    setState(() {
+      this.countries.addAll(countries);
+    });
+    _refreshController.loadComplete();
   }
 
   List<Country> loadMoreCountries() {
@@ -359,5 +377,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
     countryOffSet = last;
     return countries;
+  }
+
+  void _updateLastPull() {
+    var now = DateTime.now();
+    lastPull = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
   }
 }
