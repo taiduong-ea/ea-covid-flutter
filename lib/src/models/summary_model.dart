@@ -1,14 +1,17 @@
 import 'package:intl/intl.dart';
 import 'country.dart';
 
-class Summary {
-  List<Country> countries = [];
-  String date = "";
+class SummaryModel {
+  List<Country> _countries = [];
+  String _date = "";
 
-  Summary(this.countries, this.date);
-  Summary.empty();
+  List<Country> get countries => _countries;
+  String get date => _date;
 
-  factory Summary.fromJson(Map<String, dynamic> json) {
+  SummaryModel(this._countries, this._date);
+  SummaryModel.empty();
+
+  factory SummaryModel.fromJson(Map<String, dynamic> json) {
     var list = json['Countries'] as List;
     List<Country> countries = list.map((i) => Country.fromJson(i)).toList();
     countries.sort((b, a) =>
@@ -17,6 +20,6 @@ class Summary {
     var dateStr = json['Date'];
     DateTime dateTime = DateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(dateStr);
     dateStr = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime);
-    return new Summary(countries, dateStr);
+    return new SummaryModel(countries, dateStr);
   }
 }
