@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:eacovidflutter/app.dart';
+import 'package:eacovidflutter/src/app.dart';
 
 import 'package:eacovidflutter/main.dart';
 
