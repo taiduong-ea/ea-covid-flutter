@@ -1,10 +1,10 @@
-import 'package:eacovidflutter/models/country.dart';
-import 'package:eacovidflutter/repos/summary_repo.dart';
+import 'package:eacovidflutter/src/blocs/home_bloc.dart';
+import 'package:eacovidflutter/src/models/country.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import '../models/summary.dart';
+import 'package:tuple/tuple.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -21,11 +21,23 @@ class _MyHomePageState extends State<MyHomePage> {
       RefreshController(initialRefresh: false);
 
   bool _isSearching = false;
-  String searchQuery = "Search query";
-  Summary summary = Summary.empty();
-  String lastUpdate = "";
-  List<Country> countries = [];
-  int countryOffSet = 0;
+  String _searchQuery = "Search query";
+  String _lastPull = "";
+  String _lastUpdated = "";
+  List<Country> _countries = [];
+  int _countryOffset = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    homeBloc.fetchCountries(_countryOffset);
+  }
+
+  @override
+  dispose() {
+    homeBloc.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +49,35 @@ class _MyHomePageState extends State<MyHomePage> {
         elevation: 0.0,
         actions: _buildActions(),
       ),
-      body: Column(
-        children: <Widget>[
-          _buildLastUpdatedHeader(),
-          _buildListViewHeader(),
-          Expanded(
+      body: StreamBuilder(
+        stream: homeBloc.countries,
+        builder: (context, AsyncSnapshot<Tuple2<List<Country>, String>> snapshot) {
+          if (snapshot.hasData) {
+            return _buildPage(snapshot);
+          } else if (snapshot.hasError) {
+            return Text(snapshot.error.toString());
+          }
+          return Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
+  }
+
+  void _updateData(List<Country> countries, String lastUpdated) {
+    this._countries.addAll(countries);
+    _countryOffset += countries.length;
+    this._lastUpdated = lastUpdated;
+    _updateLastPull();
+  }
+
+  Widget _buildPage(AsyncSnapshot<Tuple2<List<Country>, String>> snapshot) {
+    _updateData(snapshot.data.item1, snapshot.data.item2);
+    return  Column(
+      children: <Widget>[
+        _buildLastUpdatedHeader(),
+        _buildListViewHeader(),
+        Expanded(
+          child: Scrollbar(
             child: SmartRefresher(
               controller: _refreshController,
               onRefresh: _onRefresh,
@@ -53,15 +89,9 @@ class _MyHomePageState extends State<MyHomePage> {
               child: _buildListView(),
             ),
           )
-        ],
-      ),
+        ),
+      ]
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    listenForCountries();
   }
 
   Widget _buildSearchField() {
@@ -79,17 +109,33 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildLastUpdatedHeader() {
-    return Container(
-      width: double.infinity,
-      color: Colors.lightBlue,
-      padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
-      child: Text(
-        "Last updated: ${summary.date}",
-        style: TextStyle(
-          color: Colors.white,
+    return Column(
+      children: <Widget>[
+        Container(
+          width: double.infinity,
+          color: Colors.lightBlue,
+          padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+          child: Text(
+            "Data queried at: $_lastPull",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.left,
+          ),
         ),
-        textAlign: TextAlign.left,
-      ),
+        Container(
+          width: double.infinity,
+          color: Colors.lightBlue,
+          padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+          child: Text(
+            "Data updated at: $_lastUpdated",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.left,
+          ),
+        ),
+      ],
     );
   }
 
@@ -160,12 +206,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildListView() {
     return ListView.separated(
-      itemBuilder: (context, index) => _buildListViewItem(countries[index]),
+      itemBuilder: (context, index) => _buildListViewItem(_countries[index]),
       separatorBuilder: (context, index) => Divider(
         height: 2,
         color: Colors.white,
       ),
-      itemCount: countries.length,
+      itemCount: _countries.length,
     );
   }
 
@@ -295,7 +341,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void updateSearchQuery(String newQuery) {
     setState(() {
-      searchQuery = newQuery;
+      _searchQuery = newQuery;
     });
   }
 
@@ -318,46 +364,21 @@ class _MyHomePageState extends State<MyHomePage> {
     return Text(widget.title);
   }
 
-  void listenForCountries() async {
-    final Summary summary = await getCountries();
-    loadCompletion(summary);
-  }
-
   void _onRefresh() async {
-    final Summary summary = await getCountries();
-    loadCompletion(summary);
+    _countryOffset = 0;
+    _countries = [];
+    await homeBloc.fetchCountries(_countryOffset);
     _refreshController.refreshCompleted();
   }
 
   void _onLoading() async {
-    await Future.delayed(Duration(milliseconds: 500));
-    var countries = loadMoreCountries();
-    setState(() {
-      this.countries.addAll(countries);
-    });
+    await homeBloc.fetchCountries(_countryOffset);
+    _updateLastPull();
     _refreshController.loadComplete();
   }
 
-  void loadCompletion(Summary summary) {
-    setState(() {
-      this.summary = summary;
-      countries = [];
-      countryOffSet = 0;
-      this.countries.addAll(loadMoreCountries());
-    });
-  }
-
-  List<Country> loadMoreCountries() {
-    var first = countryOffSet;
-    var isEnd = first + 20 > summary.countries.length;
-    var last = isEnd ? summary.countries.length : first + 20;
-
-    var countries = List<Country>();
-    for (var i = first; i < last; i++) {
-      countries.add(summary.countries[i]);
-    }
-
-    countryOffSet = last;
-    return countries;
+  void _updateLastPull() {
+    var now = DateTime.now();
+    _lastPull = DateFormat("yyyy-MM-dd HH:mm:ss").format(now);
   }
 }
