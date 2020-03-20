@@ -123,6 +123,18 @@ class _MyHomePageState extends State<MyHomePage> {
             textAlign: TextAlign.left,
           ),
         ),
+        Container(
+          width: double.infinity,
+          color: Colors.lightBlue,
+          padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+          child: Text(
+            "Data updated at: $_lastUpdated",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.left,
+          ),
+        ),
       ],
     );
   }

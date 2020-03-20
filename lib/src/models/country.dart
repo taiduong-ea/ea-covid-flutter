@@ -6,6 +6,7 @@ class Country {
   int _totalConfirmed;
   int _newDeaths;
   int _totalDeaths;
+  int _newRecovered;
   int _totalRecovered;
 
   String get name => _name;
@@ -13,27 +14,18 @@ class Country {
   int get totalConfirmed => _totalConfirmed;
   int get newDeaths => _newDeaths;
   int get totalDeaths => _totalDeaths;
+  int get newRecovered => _newRecovered;
   int get totalRecovered => _totalRecovered;
 
   Country(this._name, this._newConfirmed, this._totalConfirmed, this._newDeaths,
-      this._totalDeaths, this._totalRecovered);
+      this._totalDeaths, this._newRecovered, this._totalRecovered);
 
   Country.fromJson(Map<String, dynamic> json)
-      : _name = json['country'],
-        _newConfirmed = json['todayCases'],
-        _totalConfirmed = json["cases"],
-        _newDeaths = json["todayDeaths"],
-        _totalDeaths = json["deaths"],
-        _totalRecovered = json["recovered"];
+      : _name = json['Country'],
+        _newConfirmed = json['NewConfirmed'],
+        _totalConfirmed = json["TotalConfirmed"],
+        _newDeaths = json["NewDeaths"],
+        _totalDeaths = json["TotalDeaths"],
+        _newRecovered = json["NewRecovered"],
+        _totalRecovered = json["TotalRecovered"];
 }
-
-//"country": "China",
-//"cases": 80967,
-//"todayCases": 39,
-//"deaths": 3248,
-//"todayDeaths": 3,
-//"recovered": 71150,
-//"active": 6569,
-//"critical": 2136,
-//"casesPerOneMillion": 56
-//},
