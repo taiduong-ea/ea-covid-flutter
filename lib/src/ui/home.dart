@@ -295,7 +295,7 @@ class _MyHomePageState extends State<MyHomePage> {
         } else if (mode == LoadStatus.canLoading) {
           body = Text("Release to load more");
         } else {
-          body = Text("No more Data");
+          body = Text("");
         }
         return Container(
           height: 55.0,
