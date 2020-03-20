@@ -6,7 +6,7 @@ import 'package:http/http.dart' show Client;
 import 'package:tuple/tuple.dart';
 
 class CovidApiProvider {
-  String _baseUrl = "https://api.covid19api.com";
+  String _baseUrl = "https://coronavirus-19-api.herokuapp.com";
   Client _client = Client();
   SummaryModel _summaryModel = SummaryModel.empty();
 
@@ -20,7 +20,7 @@ class CovidApiProvider {
   }
 
   Future<SummaryModel> getSummary() async {
-    final String url = _baseUrl + '/summary';
+    final String url = _baseUrl + '/countries';
     final response = await _client.get(url);
     if (response.statusCode == 200) {
       var parsed = json.decode(response.body);
