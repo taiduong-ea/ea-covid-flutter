@@ -1,5 +1,5 @@
 # Covid19
-
+This is an application that track covid19 statistic.
 ## Preview
 
 ### iOS
